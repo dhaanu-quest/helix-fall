@@ -7,11 +7,12 @@ import { GameOptions } from './gameOptions';
  * Supports 3D models, 2D sprites, or procedural geometry
  */
 export class Character extends THREE.Group {
-    
+
     velocity: number;
     characterMesh: THREE.Mesh | THREE.Sprite | null = null;
     mixer: THREE.AnimationMixer | null = null;
-    animations: { [key: string]: THREE.AnimationAction } = {};
+    animationActions: { [key: string]: THREE.AnimationAction } = {};
+    material: THREE.MeshStandardMaterial | null = null;  // Add material property for compatibility
     
     constructor() {
         super();
@@ -69,16 +70,16 @@ export class Character extends THREE.Group {
                     // Setup animations if available
                     if (gltf.animations && gltf.animations.length > 0) {
                         this.mixer = new THREE.AnimationMixer(gltf.scene);
-                        
+
                         gltf.animations.forEach((clip) => {
                             const action = this.mixer!.clipAction(clip);
-                            this.animations[clip.name] = action;
+                            this.animationActions[clip.name] = action;
                             console.log('🎬 Animation loaded:', clip.name);
                         });
-                        
+
                         // Play idle animation by default if it exists
-                        if (this.animations['idle'] || this.animations['Idle']) {
-                            const idleAnim = this.animations['idle'] || this.animations['Idle'];
+                        if (this.animationActions['idle'] || this.animationActions['Idle']) {
+                            const idleAnim = this.animationActions['idle'] || this.animationActions['Idle'];
                             idleAnim.play();
                         }
                     }
@@ -269,6 +270,7 @@ export class Character extends THREE.Group {
 
         this.add(group);
         this.characterMesh = body;
+        this.material = bodyMaterial;  // Set material for compatibility
 
         console.log('✅ Spider-Man character created! 🕷️');
     }
@@ -289,6 +291,7 @@ export class Character extends THREE.Group {
 
         this.add(mesh);
         this.characterMesh = mesh;
+        this.material = material;  // Set material for compatibility
     }
 
     /**
@@ -319,8 +322,8 @@ export class Character extends THREE.Group {
         this.velocity = GameOptions.bounceImpulse;
 
         // Play bounce animation if available
-        if (this.animations['bounce'] || this.animations['Bounce']) {
-            const bounceAnim = this.animations['bounce'] || this.animations['Bounce'];
+        if (this.animationActions['bounce'] || this.animationActions['Bounce']) {
+            const bounceAnim = this.animationActions['bounce'] || this.animationActions['Bounce'];
             bounceAnim.reset().play();
         }
 
@@ -331,12 +334,12 @@ export class Character extends THREE.Group {
      * Play a specific animation
      */
     playAnimation(name: string): void {
-        if (this.animations[name]) {
+        if (this.animationActions[name]) {
             // Stop all other animations
-            Object.values(this.animations).forEach(action => action.stop());
+            Object.values(this.animationActions).forEach(action => action.stop());
 
             // Play the requested animation
-            this.animations[name].reset().play();
+            this.animationActions[name].reset().play();
             console.log('🎬 Playing animation:', name);
         }
     }

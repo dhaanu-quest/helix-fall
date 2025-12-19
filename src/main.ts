@@ -334,13 +334,15 @@ function update() : void {
                 }
             });
 
-            // tween ball material color using GSAP
-            gsap.to((ball.material as THREE.MeshStandardMaterial).color, {
-                r: 1,           // red
-                g: 0,           // green
-                b: 0,           // blue
-                duration: 2     // duration, in seconds
-            });
+            // tween ball material color using GSAP (only if material exists)
+            if (ball.material) {
+                gsap.to((ball.material as THREE.MeshStandardMaterial).color, {
+                    r: 1,           // red
+                    g: 0,           // green
+                    b: 0,           // blue
+                    duration: 2     // duration, in seconds
+                });
+            }
 
             // executed ths function after a certain delay
             setTimeout(() => {
@@ -378,9 +380,11 @@ function update() : void {
                 // reset platform group rotation
                 platformGroup.rotation.y = 0;
 
-                // reset ball color
-                const mat = ball.material as THREE.MeshStandardMaterial;
-                mat.color.set(GameOptions.ballColor);
+                // reset ball color (only if material exists)
+                if (ball.material) {
+                    const mat = ball.material as THREE.MeshStandardMaterial;
+                    mat.color.set(GameOptions.ballColor);
+                }
 
                 // show game header
                 gameHeader.classList.remove('hidden');
