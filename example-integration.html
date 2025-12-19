@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Integration Example - Helix Fall</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #090C0F 0%, #1a1f26 100%);
+            color: #10F48B;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #10F48B;
+            text-shadow: 0 0 20px rgba(16, 244, 139, 0.5);
+        }
+        
+        .game-container {
+            background: #0a0e12;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #10F48B;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        .score-panel {
+            background: #0a0e12;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #EA088B;
+        }
+        
+        .score-panel h2 {
+            color: #EA088B;
+            margin-bottom: 15px;
+        }
+        
+        .score-item {
+            background: #1a1f26;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #10F48B;
+        }
+        
+        .score-item strong {
+            color: #10F48B;
+        }
+        
+        .score-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #1a1f26;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            border: 2px solid #10F48B;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #10F48B;
+        }
+        
+        .stat-label {
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        button {
+            background: #10F48B;
+            color: #090C0F;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #0ed47a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Helix Fall - Game Integration Example</h1>
+        
+        <div class="game-container">
+            <h2>Play the Game</h2>
+            <iframe id="game-iframe" src="./index.html"></iframe>
+        </div>
+        
+        <div class="score-panel">
+            <h2>📊 Score Dashboard</h2>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="latest-score">0</div>
+                    <div class="stat-label">Latest Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="high-score">0</div>
+                    <div class="stat-label">High Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-games">0</div>
+                    <div class="stat-label">Games Played</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-score">0</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+            </div>
+            
+            <button onclick="clearScores()">Clear History</button>
+            
+            <h3 style="margin-top: 20px; margin-bottom: 10px;">Recent Games</h3>
+            <div class="score-list" id="score-list">
+                <p style="color: #888;">Play a game to see scores here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Listen for score messages from the game iframe
+        window.addEventListener('message', (event) => {
+            // In production, verify the origin:
+            // if (event.origin !== 'https://your-domain.com') return;
+            
+            if (event.data.type === 'GAME_SCORE') {
+                const result = event.data.data;
+                console.log('Received score from game:', result);
+                
+                // Update the dashboard
+                updateDashboard();
+                
+                // You can also send this to your backend
+                // sendToBackend(result);
+            }
+        });
+
+        function updateDashboard() {
+            // Get scores from localStorage
+            const latest = localStorage.getItem('helix-fall_latest_score');
+            const history = localStorage.getItem('helix-fall_score_history');
+            
+            if (latest) {
+                const latestScore = JSON.parse(latest);
+                document.getElementById('latest-score').textContent = latestScore.score;
+            }
+            
+            if (history) {
+                const scores = JSON.parse(history);
+                
+                // Calculate stats
+                const highScore = Math.max(...scores.map(s => s.score));
+                const avgScore = Math.round(scores.reduce((sum, s) => sum + s.score, 0) / scores.length);
+                
+                document.getElementById('high-score').textContent = highScore;
+                document.getElementById('total-games').textContent = scores.length;
+                document.getElementById('avg-score').textContent = avgScore;
+                
+                // Display score list
+                const scoreList = document.getElementById('score-list');
+                scoreList.innerHTML = scores.reverse().map((score, index) => `
+                    <div class="score-item">
+                        <strong>Game ${scores.length - index}</strong> - 
+                        Score: ${score.score} | 
+                        Time Left: ${score.timeLeft}s | 
+                        ${new Date(score.timestamp).toLocaleString()}
+                    </div>
+                `).join('');
+            }
+        }
+
+        function clearScores() {
+            if (confirm('Clear all score history?')) {
+                localStorage.removeItem('helix-fall_latest_score');
+                localStorage.removeItem('helix-fall_score_history');
+                updateDashboard();
+                location.reload();
+            }
+        }
+
+        // Example: Send to backend
+        function sendToBackend(result) {
+            fetch('/api/scores', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(result)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Score saved to backend:', data))
+            .catch(error => console.error('Error saving score:', error));
+        }
+
+        // Update dashboard on load
+        updateDashboard();
+        
+        // Update dashboard every second (to catch localStorage changes)
+        setInterval(updateDashboard, 1000);
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helix Fall - With Scape Character</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #090C0F 0%, #1a1f26 100%);
+            color: #10F48B;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #10F48B;
+            text-shadow: 0 0 20px rgba(16, 244, 139, 0.5);
+        }
+        
+        .controls {
+            background: #0a0e12;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #10F48B;
+        }
+        
+        .controls h2 {
+            color: #EA088B;
+            margin-bottom: 15px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #10F48B;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            background: #1a1f26;
+            border: 2px solid #10F48B;
+            border-radius: 5px;
+            color: #10F48B;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #10F48B;
+            color: #090C0F;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: #0ed47a;
+        }
+        
+        .game-container {
+            background: #0a0e12;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #10F48B;
+        }
+        
+        #game-frame {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        .info {
+            background: #1a1f26;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #EA088B;
+        }
+        
+        .info h3 {
+            color: #EA088B;
+            margin-bottom: 10px;
+        }
+        
+        .info ul {
+            margin-left: 20px;
+            color: #888;
+        }
+        
+        .info li {
+            margin-bottom: 5px;
+        }
+        
+        code {
+            background: #0a0e12;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #10F48B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Helix Fall - Scape Character Integration</h1>
+        
+        <div class="controls">
+            <h2>🎨 Character Configuration</h2>
+            
+            <div class="control-group">
+                <label for="character-type">Character Type:</label>
+                <select id="character-type">
+                    <option value="ball">Default Ball (No Character)</option>
+                    <option value="procedural" selected>Procedural Character (Built-in)</option>
+                    <option value="gltf">3D Model (GLTF/GLB)</option>
+                    <option value="sprite">2D Sprite (PNG)</option>
+                </select>
+            </div>
+            
+            <div class="control-group" id="model-path-group" style="display: none;">
+                <label for="model-path">Model/Sprite Path:</label>
+                <input type="text" id="model-path" placeholder="/assets/models/mooderling.glb">
+                <small style="color: #888; display: block; margin-top: 5px;">
+                    For GLTF: path to .glb or .gltf file<br>
+                    For Sprite: path to .png file with transparency
+                </small>
+            </div>
+            
+            <button onclick="loadGame()">🚀 Load Game with Character</button>
+        </div>
+        
+        <div class="game-container">
+            <h2>Game Preview</h2>
+            <iframe id="game-frame" src="./index.html"></iframe>
+        </div>
+        
+        <div class="info">
+            <h3>📝 How to Add Your Scape Characters</h3>
+            <ul>
+                <li><strong>Procedural:</strong> Uses code to create a simple character with The Scape colors (no files needed)</li>
+                <li><strong>3D Model:</strong> Place your <code>.glb</code> or <code>.gltf</code> Mooderling model in <code>/public/assets/models/</code></li>
+                <li><strong>2D Sprite:</strong> Place your <code>.png</code> Mooderling image in <code>/public/assets/sprites/</code></li>
+            </ul>
+            
+            <h3 style="margin-top: 20px;">💻 Code Example</h3>
+            <pre style="background: #0a0e12; padding: 15px; border-radius: 5px; overflow-x: auto; color: #10F48B;">
+&lt;script&gt;
+    window.gameConfig = {
+        useCharacter: true,
+        characterType: 'gltf',  // or 'sprite' or 'procedural'
+        characterModel: '/assets/models/mooderling.glb'
+    };
+&lt;/script&gt;
+&lt;script src="main.js"&gt;&lt;/script&gt;
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        const typeSelect = document.getElementById('character-type');
+        const modelPathGroup = document.getElementById('model-path-group');
+        const modelPathInput = document.getElementById('model-path');
+        
+        // Show/hide model path input based on selection
+        typeSelect.addEventListener('change', () => {
+            const type = typeSelect.value;
+            if (type === 'gltf' || type === 'sprite') {
+                modelPathGroup.style.display = 'block';
+                
+                // Set placeholder based on type
+                if (type === 'gltf') {
+                    modelPathInput.placeholder = '/assets/models/mooderling.glb';
+                } else {
+                    modelPathInput.placeholder = '/assets/sprites/mooderling.png';
+                }
+            } else {
+                modelPathGroup.style.display = 'none';
+            }
+        });
+        
+        function loadGame() {
+            const type = typeSelect.value;
+            const modelPath = modelPathInput.value;
+            
+            let url = './index.html?';
+            
+            if (type !== 'ball') {
+                url += 'useCharacter=true';
+                url += '&characterType=' + type;
+                
+                if (modelPath && (type === 'gltf' || type === 'sprite')) {
+                    url += '&characterModel=' + encodeURIComponent(modelPath);
+                }
+            }
+            
+            console.log('🎮 Loading game with URL:', url);
+            document.getElementById('game-frame').src = url;
+        }
+    </script>
+</body>
+</html>
+

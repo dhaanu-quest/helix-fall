@@ -1,0 +1,120 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-image: repeating-conic-gradient(#0a0e12  0deg 90deg, #090C0F 90deg 180deg);
+    background-size: 10vw 10vw;
+    animation: backgroundAnim 10s linear infinite;
+}
+
+@keyframes backgroundAnim {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 20vw 20vw;
+    }
+}
+
+canvas {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+}
+
+#gameheader {
+    position: fixed;
+    top: 60%;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    text-align: center;
+}
+
+#gameheader.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#gametitle {
+    font-size: clamp(60px, 5vw, 120px);
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #10F48B;
+    animation: titleAnim 2s  ease-in-out infinite;
+    margin-top: 5vh;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-shadow: 0 0 20px rgba(16, 244, 139, 0.5);
+}
+
+@keyframes titleAnim {
+    0%, 100% {
+        letter-spacing: 0
+    }
+    50% {
+        letter-spacing: -0.05em;
+    }
+}
+
+#logorow {
+    margin-top: 5vh;
+    display: flex;
+    justify-content: center;
+    gap: clamp(90px, 10vw, 128px);
+}
+
+.gamelogo {
+    height: clamp(90px, 10vw, 128px);
+}
+
+.ui {
+    position: fixed;
+    font-size: clamp(64px, 8vw, 144px);
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #10F48B;
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 0 0 10px rgba(16, 244, 139, 0.3);
+}
+
+#hand {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: clamp(64px, 10vw, 96px);
+    transform: translate(-50%, -50%);
+    animation: handAnimation 1s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+#hand.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+@keyframes handAnimation {
+    from {
+        transform: translate(-150%, -50%);
+    }
+    to {
+        transform: translate(50%, -50%);
+    }
+}
+
+#timer {
+    top: 2vw;
+    left: 2vw;
+}
+
+#score { 
+    top: 2vw;
+    right: 2vw;
+}
